@@ -1,6 +1,4 @@
-﻿# ProxiTalk - Asistente por Proximidad
-
-## Descripción del Proyecto
+﻿# Descripción del Proyecto
 
 ProxiTalk es una aplicación Android que implementa un sistema integrado utilizando el sensor de proximidad del dispositivo. La aplicación detecta gestos específicos (3 pasadas cercanas al sensor en 2 segundos) y responde con vibración y lectura de notificaciones mediante texto a voz.
 
