@@ -1,0 +1,7 @@
+﻿<resources>
+    <string name="app_name">ProxiTalk</string>
+    <string name="status_monitoring">Monitoreando sensor de proximidad...</string>
+    <string name="status_gesture_detected">Gesto detectado. Leyendo notificaciones...</string>
+    <string name="status_reading">Leyendo notificaciones...</string>
+    <string name="notification_simulated">Notificación simulada: Tienes 3 mensajes nuevos y 1 llamada perdida.</string>
+</resources>

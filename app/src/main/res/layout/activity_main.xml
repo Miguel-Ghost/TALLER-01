@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#000000">
+
+    <!-- Título de la aplicación -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ProxiTalk - Asistente por Proximidad"
+        android:textSize="24sp"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Estado del sistema -->
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/status_monitoring"
+        android:textSize="18sp"
+        android:textColor="#00FF00"
+        android:gravity="center"
+        android:layout_marginBottom="16dp"
+        android:padding="8dp"
+        android:background="#333333"
+        android:textStyle="bold" />
+
+    <!-- Información del sensor -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/sensorInfoText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Sensor: Verificando..."
+            android:textSize="14sp"
+            android:textColor="#CCCCCC"
+            android:padding="8dp"
+            android:background="#222222" />
+
+        <TextView
+            android:id="@+id/dataCountText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Datos: 0"
+            android:textSize="14sp"
+            android:textColor="#CCCCCC"
+            android:padding="8dp"
+            android:background="#222222"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- Gráfico en tiempo real -->
+    <com.software.taller01.ProximityGraphView
+        android:id="@+id/proximityGraph"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Instrucciones -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Instrucciones: Acerca tu mano al sensor 3 veces en 2 segundos para activar la lectura de notificaciones"
+        android:textSize="14sp"
+        android:textColor="#FFFF00"
+        android:gravity="center"
+        android:padding="12dp"
+        android:background="#333333"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Botones de control -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/startButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Iniciar"
+            android:textColor="#FFFFFF"
+            android:background="#00AA00"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/stopButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Detener"
+            android:textColor="#FFFFFF"
+            android:background="#AA0000"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
