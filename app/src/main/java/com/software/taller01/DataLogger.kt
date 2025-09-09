@@ -1,6 +1,5 @@
 ﻿package com.software.taller01
 
-import java.util.*
 import kotlin.collections.ArrayList
 
 /**
@@ -16,8 +15,8 @@ class DataLogger {
     )
     
     private val dataBuffer = ArrayList<SensorData>()
-    private val maxDataPoints = 300 // 30 segundos a 10 Hz
-    private val maxTimeWindow = 30000L // 30 segundos en millisegundos
+    private val maxDataPoints = 300
+    private val maxTimeWindow = 30000L
     
     /**
      * Agrega un nuevo dato del sensor
@@ -27,11 +26,9 @@ class DataLogger {
         val sensorData = SensorData(currentTime, distance, isNear)
         
         dataBuffer.add(sensorData)
-        
-        // Limpiar datos antiguos
+
         cleanupOldData(currentTime)
-        
-        // Mantener el buffer dentro del límite
+
         if (dataBuffer.size > maxDataPoints) {
             dataBuffer.removeAt(0)
         }

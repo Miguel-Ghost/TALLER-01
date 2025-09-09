@@ -1,5 +1,6 @@
 ﻿package com.software.taller01
 
+import android.graphics.Color
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -116,11 +117,18 @@ class MainActivity : AppCompatActivity() {
 
     private fun startMonitoring() {
         try {
+            if (!proximitySensorManager.isSensorAvailable()){
+                Toast.makeText(this, "Sensor de proximidad no disponible", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+
             if (!isMonitoring) {
                 proximitySensorManager.startMonitoring()
                 isMonitoring = true
                 updateStatus("Monitoreando sensor de proximidad...")
                 startUIUpdates()
+                updateUI()
                 Log.d(TAG, "Monitoreo iniciado")
             }
         } catch (e: Exception) {
@@ -147,6 +155,14 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             try {
                 updateStatus("¡Gesto detectado! Leyendo notificaciones...")
+
+                statusText.setBackgroundColor(Color.GREEN)
+                updateHandler.postDelayed({
+                    runOnUiThread {
+                        statusText.setBackgroundColor(Color.TRANSPARENT)
+                    }
+                }, 1000)
+
                 Log.d(TAG, "Gesto detectado en MainActivity")
             } catch (e: Exception) {
                 Log.e(TAG, "Error al manejar gesto detectado: ${e.message}", e)
@@ -185,7 +201,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateUI() {
         try {
-            // Actualizar información del sensor
             val sensorAvailable = proximitySensorManager.isSensorAvailable()
             val sensorInfo = if (sensorAvailable) {
                 "Sensor: Disponible (${String.format("%.1f", proximitySensorManager.getMaxRange())} cm)"
@@ -194,17 +209,25 @@ class MainActivity : AppCompatActivity() {
             }
             sensorInfoText.text = sensorInfo
 
-            // Actualizar contador de datos
             val dataCount = dataLogger.getDataCount()
             dataCountText.text = "Datos: $dataCount"
 
-            // Actualizar gráfico
-            val recentData = dataLogger.getRecentData(30) // Últimos 30 segundos
+            val recentData = dataLogger.getAllData()
             proximityGraph.updateData(recentData)
+            if (recentData.isNotEmpty()) {
+                proximityGraph.updateData(recentData)
+            } else {
+                Log.w(TAG, "No hay datos recientes para mostrar")
+            }
 
-            // Actualizar estado de los botones
             startButton.isEnabled = !isMonitoring
             stopButton.isEnabled = isMonitoring
+
+            val lastData = dataLogger.getLastData()
+            if (lastData != null) {
+                Log.d(TAG, "Último dato: ${String.format("%.1f", lastData.distance)} cm, Cerca: ${lastData.isNear}")
+            }
+
         } catch (e: Exception) {
             Log.e(TAG, "Error al actualizar UI: ${e.message}", e)
         }

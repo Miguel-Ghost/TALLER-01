@@ -27,10 +27,10 @@ class ProximitySensorManager(
 
     // Variables para detección de gestos
     private val gestureEvents = mutableListOf<Long>()
-    private val gestureTimeWindow = 2000L // 2 segundos
-    private val requiredGestures = 3 // 3 pasadas
+    private val gestureTimeWindow = 3000L // 3 segundos
+    private val requiredGestures = 2 //  2 pasadas
 
-    // Variables para control de estado
+
     private var isMonitoring = false
     private var lastDistance = 0f
     private var lastIsNear = false
@@ -66,10 +66,13 @@ class ProximitySensorManager(
             sensorManager.registerListener(
                 this,
                 proximitySensor,
-                SensorManager.SENSOR_DELAY_NORMAL
+                SensorManager.SENSOR_DELAY_FASTEST
             )
             isMonitoring = true
             Log.d(TAG, "Monitoreo del sensor iniciado")
+
+            lastDistance = -1f
+            lastIsNear = false
         }
     }
 
@@ -98,20 +101,21 @@ class ProximitySensorManager(
         event?.let { sensorEvent ->
             if (sensorEvent.sensor.type == Sensor.TYPE_PROXIMITY) {
                 val distance = sensorEvent.values[0]
-                val isNear = distance < (proximitySensor?.maximumRange ?: 0f)
+                val threshold = 3.0f
+                val isNear = distance < threshold
 
                 // Registrar datos
                 dataLogger.addData(distance, isNear)
 
-                // Detectar transiciones de lejos a cerca
-                if (!lastIsNear && isNear) {
+                // Detectar cualquier cambio (cerca ↔ lejos)
+                val delta = Math.abs(distance - lastDistance)
+                if (delta == -1f || delta > 0.2f || lastIsNear != isNear) { // Cambio mínimo de 0.1cm o cambio de estado
+                    Log.d(TAG, "Cambio de estado detectado: distancia=$distance, delta=$delta")
                     handleProximityEvent()
                 }
 
                 lastDistance = distance
                 lastIsNear = isNear
-
-                Log.d(TAG, "Distancia: $distance, Cerca: $isNear")
             }
         }
     }
@@ -138,6 +142,8 @@ class ProximitySensorManager(
         if (gestureEvents.size >= requiredGestures) {
             detectGesture()
         }
+
+        Log.d(TAG, "Evento de proximidad detectado! Eventos acumulados: ${gestureEvents.size}")
     }
 
     /**

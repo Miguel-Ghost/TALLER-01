@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
 import android.view.View
-import kotlin.math.*
 
 /**
  * Vista personalizada para mostrar un gráfico en tiempo real de los datos del sensor de proximidad
@@ -22,9 +21,9 @@ class ProximityGraphView @JvmOverloads constructor(
 
     private var sensorData = mutableListOf<DataLogger.SensorData>()
     private var maxDataPoints = 100
-    private var maxRange = 5f // Rango máximo del sensor en cm
+    private var maxRange = 5f
 
-    // Colores
+
     private val backgroundColor = Color.BLACK
     private val gridColor = Color.GRAY
     private val lineColor = Color.GREEN
