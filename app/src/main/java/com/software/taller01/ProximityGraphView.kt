@@ -22,6 +22,7 @@ class ProximityGraphView @JvmOverloads constructor(
     private var sensorData = mutableListOf<DataLogger.SensorData>()
     private var maxDataPoints = 100
     private var maxRange = 5f
+    private var sensorType = "PROXIMITY"
 
 
     private val backgroundColor = Color.BLACK
@@ -83,6 +84,18 @@ class ProximityGraphView @JvmOverloads constructor(
             invalidate()
         } catch (e: Exception) {
             android.util.Log.e("ProximityGraphView", "Error al establecer rango máximo: ${e.message}")
+        }
+    }
+
+    /**
+     * Establece el tipo de sensor
+     */
+    fun setSensorType(type: String) {
+        try {
+            sensorType = type
+            invalidate()
+        } catch (e: Exception) {
+            android.util.Log.e("ProximityGraphView", "Error al establecer tipo de sensor: ${e.message}")
         }
     }
 
@@ -179,8 +192,15 @@ class ProximityGraphView @JvmOverloads constructor(
             val lastData = sensorData.lastOrNull()
 
             if (lastData != null) {
-                val infoText = "Distancia: ${String.format("%.1f", lastData.distance)} cm"
-                val statusText = if (lastData.isNear) "CERCA" else "LEJOS"
+                val infoText = when (sensorType) {
+                    "LIGHT" -> "Luz: ${String.format("%.1f", lastData.distance)} (est.)"
+                    "GYROSCOPE" -> "Aceleración: ${String.format("%.1f", lastData.distance)} m/s²"
+                    else -> "Distancia: ${String.format("%.1f", lastData.distance)} cm"
+                }
+                val statusText = when (sensorType) {
+                    "GYROSCOPE" -> if (lastData.isNear) "SACUDIDA" else "QUIETO"
+                    else -> if (lastData.isNear) "CERCA" else "LEJOS"
+                }
                 val dataCountText = "Datos: ${sensorData.size}"
 
                 canvas.drawText(infoText, 20f, 40f, textPaint)
@@ -188,10 +208,15 @@ class ProximityGraphView @JvmOverloads constructor(
                 canvas.drawText(dataCountText, width - 200f, 40f, textPaint)
             }
 
-            // Título
+            // Título dinámico
             textPaint.textSize = 24f
             textPaint.textAlign = Paint.Align.CENTER
-            canvas.drawText("Sensor de Proximidad - Tiempo Real", width / 2f, height - 20f, textPaint)
+            val title = when (sensorType) {
+                "LIGHT" -> "Sensor de Luz (Fallback) - Tiempo Real"
+                "GYROSCOPE" -> "Sensor de Giroscopio (Sacudida) - Tiempo Real"
+                else -> "Sensor de Proximidad - Tiempo Real"
+            }
+            canvas.drawText(title, width / 2f, height - 20f, textPaint)
 
             // Restaurar alineación
             textPaint.textAlign = Paint.Align.LEFT

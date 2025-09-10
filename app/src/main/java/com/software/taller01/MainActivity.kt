@@ -86,9 +86,13 @@ class MainActivity : AppCompatActivity() {
             // Inicializar TTS
             proximitySensorManager.initializeTTS()
 
+            // Verificar disponibilidad de sensores
+            proximitySensorManager.logSensorAvailability()
+
             // Configurar gráfico
             if (proximitySensorManager.isSensorAvailable()) {
                 proximityGraph.setMaxRange(proximitySensorManager.getMaxRange())
+                proximityGraph.setSensorType(proximitySensorManager.getCurrentSensorType())
             }
 
             Log.d(TAG, "Componentes inicializados correctamente")
@@ -118,18 +122,21 @@ class MainActivity : AppCompatActivity() {
     private fun startMonitoring() {
         try {
             if (!proximitySensorManager.isSensorAvailable()){
-                Toast.makeText(this, "Sensor de proximidad no disponible", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Ningún sensor disponible (proximidad ni luz)", Toast.LENGTH_SHORT).show()
                 return
             }
-
 
             if (!isMonitoring) {
                 proximitySensorManager.startMonitoring()
                 isMonitoring = true
-                updateStatus("Monitoreando sensor de proximidad...")
+                
+                val sensorType = proximitySensorManager.getCurrentSensorType()
+                val sensorInfo = proximitySensorManager.getSensorInfo()
+                updateStatus("Monitoreando sensor: $sensorInfo")
+                
                 startUIUpdates()
                 updateUI()
-                Log.d(TAG, "Monitoreo iniciado")
+                Log.d(TAG, "Monitoreo iniciado con sensor: $sensorType")
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error al iniciar monitoreo: ${e.message}", e)
@@ -154,16 +161,21 @@ class MainActivity : AppCompatActivity() {
     private fun onGestureDetected() {
         runOnUiThread {
             try {
-                updateStatus("¡Gesto detectado! Leyendo notificaciones...")
+                val sensorType = proximitySensorManager.getCurrentSensorType()
+                updateStatus("¡Gesto detectado! ($sensorType) Leyendo notificaciones...")
 
+                // Feedback visual más prominente
                 statusText.setBackgroundColor(Color.GREEN)
+                statusText.setTextColor(Color.WHITE)
+                
                 updateHandler.postDelayed({
                     runOnUiThread {
                         statusText.setBackgroundColor(Color.TRANSPARENT)
+                        statusText.setTextColor(Color.BLACK)
                     }
-                }, 1000)
+                }, 2000) // Mantener feedback por 2 segundos
 
-                Log.d(TAG, "Gesto detectado en MainActivity")
+                Log.d(TAG, "Gesto detectado en MainActivity - Sensor: $sensorType")
             } catch (e: Exception) {
                 Log.e(TAG, "Error al manejar gesto detectado: ${e.message}", e)
             }
@@ -203,7 +215,9 @@ class MainActivity : AppCompatActivity() {
         try {
             val sensorAvailable = proximitySensorManager.isSensorAvailable()
             val sensorInfo = if (sensorAvailable) {
-                "Sensor: Disponible (${String.format("%.1f", proximitySensorManager.getMaxRange())} cm)"
+                val currentSensor = proximitySensorManager.getCurrentSensorType()
+                val maxRange = proximitySensorManager.getMaxRange()
+                "Sensor: $currentSensor (${String.format("%.1f", maxRange)} cm)"
             } else {
                 "Sensor: No disponible"
             }
@@ -214,18 +228,26 @@ class MainActivity : AppCompatActivity() {
 
             val recentData = dataLogger.getAllData()
             proximityGraph.updateData(recentData)
-            if (recentData.isNotEmpty()) {
-                proximityGraph.updateData(recentData)
-            } else {
-                Log.w(TAG, "No hay datos recientes para mostrar")
-            }
+            
+            // Actualizar tipo de sensor en el gráfico
+            proximityGraph.setSensorType(proximitySensorManager.getCurrentSensorType())
 
             startButton.isEnabled = !isMonitoring
             stopButton.isEnabled = isMonitoring
 
             val lastData = dataLogger.getLastData()
             if (lastData != null) {
-                Log.d(TAG, "Último dato: ${String.format("%.1f", lastData.distance)} cm, Cerca: ${lastData.isNear}")
+                val sensorType = proximitySensorManager.getCurrentSensorType()
+                Log.d(TAG, "$sensorType - Último dato: ${String.format("%.1f", lastData.distance)} cm, Cerca: ${lastData.isNear}")
+                
+                // Feedback visual en tiempo real
+                if (lastData.isNear) {
+                    dataCountText.setBackgroundColor(Color.RED)
+                    dataCountText.setTextColor(Color.WHITE)
+                } else {
+                    dataCountText.setBackgroundColor(Color.TRANSPARENT)
+                    dataCountText.setTextColor(Color.BLACK)
+                }
             }
 
         } catch (e: Exception) {
